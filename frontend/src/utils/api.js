@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL =
+  import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -19,9 +20,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 // Handle response errors
@@ -37,48 +36,57 @@ api.interceptors.response.use(
   }
 );
 
-// Auth API
+// 🔥 FIXED AUTH API
 export const authAPI = {
-  register: (data) => api.post('/auth/register', data),
-  login: (data) => api.post('/auth/login', data),
-  getMe: () => api.get('/auth/me'),
-  updateProfile: (data) => api.put('/auth/profile', data),
-  getGoogleAuthUrl: () => api.get('/auth/google'),
-  connectGmail: (code) => api.post('/auth/gmail/connect', { code }),
-  disconnectGmail: () => api.post('/auth/gmail/disconnect'),
-  logout: () => api.post('/auth/logout'),
+  register: (data) => api.post('/api/auth/register', data),
+  login: (data) => api.post('/api/auth/login', data),
+  getMe: () => api.get('/api/auth/me'),
+  updateProfile: (data) => api.put('/api/auth/profile', data),
+  getGoogleAuthUrl: () => api.get('/api/auth/google'),
+  connectGmail: (code) =>
+    api.post('/api/auth/gmail/connect', { code }),
+  disconnectGmail: () =>
+    api.post('/api/auth/gmail/disconnect'),
+  logout: () => api.post('/api/auth/logout'),
 };
 
 // Transaction API
 export const transactionAPI = {
-  getAll: (params) => api.get('/transactions', { params }),
-  getStats: (params) => api.get('/transactions/stats', { params }),
-  getAccounts: () => api.get('/transactions/accounts'),
-  getById: (id) => api.get(`/transactions/${id}`),
-  update: (id, data) => api.put(`/transactions/${id}`, data),
-  delete: (id) => api.delete(`/transactions/${id}`),
-  sync: () => api.post('/transactions/sync'),
-  createManual: (data) => api.post('/transactions/manual', data),
+  getAll: (params) => api.get('/api/transactions', { params }),
+  getStats: (params) =>
+    api.get('/api/transactions/stats', { params }),
+  getAccounts: () => api.get('/api/transactions/accounts'),
+  getById: (id) => api.get(`/api/transactions/${id}`),
+  update: (id, data) =>
+    api.put(`/api/transactions/${id}`, data),
+  delete: (id) => api.delete(`/api/transactions/${id}`),
+  sync: () => api.post('/api/transactions/sync'),
+  createManual: (data) =>
+    api.post('/api/transactions/manual', data),
 };
 
 // Category API
 export const categoryAPI = {
-  getAll: () => api.get('/categories'),
-  getById: (id) => api.get(`/categories/${id}`),
-  create: (data) => api.post('/categories', data),
-  update: (id, data) => api.put(`/categories/${id}`, data),
-  delete: (id) => api.delete(`/categories/${id}`),
-  initDefaults: () => api.post('/categories/init-defaults'),
+  getAll: () => api.get('/api/categories'),
+  getById: (id) => api.get(`/api/categories/${id}`),
+  create: (data) => api.post('/api/categories', data),
+  update: (id, data) =>
+    api.put(`/api/categories/${id}`, data),
+  delete: (id) => api.delete(`/api/categories/${id}`),
+  initDefaults: () =>
+    api.post('/api/categories/init-defaults'),
 };
 
 // Budget API
 export const budgetAPI = {
-  getAll: () => api.get('/budget'),
-  getSummary: (params) => api.get('/budget/summary', { params }),
-  getById: (id) => api.get(`/budget/${id}`),
-  create: (data) => api.post('/budget', data),
-  update: (id, data) => api.put(`/budget/${id}`, data),
-  delete: (id) => api.delete(`/budget/${id}`),
+  getAll: () => api.get('/api/budget'),
+  getSummary: (params) =>
+    api.get('/api/budget/summary', { params }),
+  getById: (id) => api.get(`/api/budget/${id}`),
+  create: (data) => api.post('/api/budget', data),
+  update: (id, data) =>
+    api.put(`/api/budget/${id}`, data),
+  delete: (id) => api.delete(`/api/budget/${id}`),
 };
 
 export default api;
