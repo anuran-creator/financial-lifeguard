@@ -13,30 +13,35 @@ import transactionRoutes from './routes/transactions.js';
 import categoryRoutes from './routes/categories.js';
 import budgetRoutes from './routes/budget.js';
 
-// Load environment variables
 dotenv.config();
-
-// Connect to database
 connectDB();
 
-// Initialize express app
 const app = express();
 
-// CORS configuration - MUST be before other middleware
+// ✅ FIXED CORS
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://financial-lifeguard.vercel.app'
+];
+
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
-  optionsSuccessStatus: 200,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
 app.use(cors(corsOptions));
-
-// Handle preflight requests
 app.options('*', cors(corsOptions));
 
-// Security middleware - configured to work with CORS
+// Security
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
@@ -44,67 +49,44 @@ app.use(
   })
 );
 
-// Rate limiting - more permissive for development
+// Rate limit
 const limiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute window
-  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // 1000 requests per minute in dev, 100 in prod
-  message: 'Too many requests from this IP, please try again later.',
-  standardHeaders: true,
-  legacyHeaders: false,
-  // Skip rate limiting for certain routes if needed
-  skip: (req) => {
-    // Don't rate limit health checks
-    return req.path === '/api/health';
-  },
+  windowMs: 1 * 60 * 1000,
+  max: process.env.NODE_ENV === 'production' ? 100 : 1000,
 });
 
 app.use('/api/', limiter);
 
-// Body parser middleware
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Cookie parser
 app.use(cookieParser());
 
-// API Routes
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/budget', budgetRoutes);
 
-// Health check route
+// Health
 app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Server is running',
-    timestamp: new Date().toISOString(),
-  });
+  res.json({ success: true });
 });
 
-// Root route
+// Root
 app.get('/', (req, res) => {
-  res.json({
-    message: 'Financial Lifeguard API',
-    version: '1.0.0',
-    endpoints: {
-      auth: '/api/auth',
-      transactions: '/api/transactions',
-      categories: '/api/categories',
-      budget: '/api/budget',
-    },
-  });
+  res.json({ message: 'Financial Lifeguard API' });
 });
 
-// Error handling middleware
+// Error
 app.use(notFound);
 app.use(errorHandler);
 
-// Start server
+// Start
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
 
 export default app;
